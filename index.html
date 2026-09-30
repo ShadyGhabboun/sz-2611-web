@@ -951,7 +951,6 @@
       if (p && p.catch) p.catch(function(){ setMusic(false); });
       var v = 0, t = setInterval(function(){ v = Math.min(.45, v + .03); audio.volume = v; if (v >= .45 || !musicOn) clearInterval(t); }, 120);
     } else { audio.pause(); }
-    store("music-off", !on);
   }
   musicBtn.onclick = function(){ setMusic(!musicOn); };
 
@@ -960,7 +959,7 @@
   function openInvite(){
     if (opened) return; opened = true;
     var intro = $("intro");
-    if (hasMusic && !store("music-off")) setMusic(true);
+    setMusic(true);   // every visit starts with music, even if it was switched off last time
     intro.classList.add("opening");
     var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     setTimeout(function(){
