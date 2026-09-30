@@ -598,7 +598,7 @@
   "use strict";
 
   /* ------------------------------------------------------------ config */
-  var API = "";   // Google Apps Script web-app URL
+  var API = "https://script.google.com/macros/s/AKfycbwgeCkRjFxDlbFWV5-ndaPp2-K2dVi-jRZO4HJL3gIwBgvkKJQyOg-lg6AfaLLWUnU6/exec";
   var MAP_URL = "https://share.google/lAQt0e4RHDOJZ1Jqd";
   var EVENT = {
     title: "حفل زفاف شادي وزينة",
@@ -675,17 +675,38 @@
   }
   function delay(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
 
-  function apiGet(code){
-    if (MOCK) return delay(500).then(function(){ return mockGet(code); });
-    return fetch(API + "?code=" + encodeURIComponent(code), { redirect:"follow" }).then(function(r){ return r.json(); });
+  // Apps Script now and then answers with an HTML error page instead of JSON;
+  // a repeat of the same request succeeds, so every call retries a few times.
+  function getOnce(code){
+    return fetch(API + "?code=" + encodeURIComponent(code) + "&_=" + Date.now(), { redirect:"follow", cache:"no-store" })
+      .then(function(r){ return r.json(); });
   }
-  function apiPost(body){
+  function apiGet(code, tries){
+    if (MOCK) return delay(500).then(function(){ return mockGet(code); });
+    tries = tries || 4;
+    return getOnce(code).catch(function(e){
+      if (tries <= 1) throw e;
+      return delay(600).then(function(){ return apiGet(code, tries - 1); });
+    });
+  }
+  function landed(s, body){
+    return s && s.ok && s.status === body.status && (body.status !== "yes" || s.count === body.count);
+  }
+  function apiPost(body, tries){
     if (MOCK) return delay(700).then(function(){ return mockPost(body); });
+    tries = tries || 3;
     return fetch(API, {
       method:"POST", redirect:"follow",
       headers:{ "Content-Type":"text/plain;charset=utf-8" },
       body: JSON.stringify(body)
-    }).then(function(r){ return r.json(); });
+    }).then(function(r){ return r.json(); }).catch(function(e){
+      // the write may have gone through even though the reply was lost
+      return apiGet(body.code).then(function(s){
+        if (landed(s, body)) return s;
+        if (tries <= 1) throw e;
+        return delay(600).then(function(){ return apiPost(body, tries - 1); });
+      });
+    });
   }
 
   /* ------------------------------------------------------------ state */
