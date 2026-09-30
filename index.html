@@ -567,10 +567,6 @@
       <span class="chip"><svg><use href="#i-people"/></svg>الحفل منفصل للرجال والنساء</span>
     </div>
     <p class="gate-hint" id="gate-hint">بعد تأكيد الحضور يظهر لكم رابط الموقع على الخريطة وإضافة الموعد إلى التقويم</p>
-    <div class="loc-actions" id="loc-actions" hidden>
-      <a class="btn btn-gold" id="btn-map" href="#" target="_blank" rel="noopener"><svg><use href="#i-pin"/></svg>الموقع على الخريطة</a>
-      <button class="btn btn-line" id="btn-cal" type="button"><svg><use href="#i-cal-add"/></svg>إضافة إلى التقويم</button>
-    </div>
   </section>
 
   <!-- rsvp -->
@@ -787,7 +783,6 @@
   function renderRSVP(){
     var body = $("rsvp-body");
     var confirmed = state && state.status === "yes";
-    $("loc-actions").hidden = !confirmed;
     $("gate-hint").hidden = confirmed || !CODE || loadError === "not_found";
 
     if (!CODE){
@@ -940,8 +935,6 @@
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(function(){ URL.revokeObjectURL(a.href); }, 4000);
   }
-  $("btn-cal").onclick = addToCalendar;
-  $("btn-map").href = MAP_URL;
 
   /* ------------------------------------------------------------ music */
   var audio = $("audio"), musicBtn = $("music"), musicOn = false, hasMusic = false;
