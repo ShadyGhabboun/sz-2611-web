@@ -322,6 +322,20 @@
   [data-couple="art"] .couple{display:none;}
   [data-couple="art"] .couple-art{display:block;}
 
+  .sign-art{display:none;width:min(190px,56%);margin:0 auto 8px;filter:drop-shadow(0 1px 0 rgba(255,255,255,.45));}
+  .sign-art i{display:block;aspect-ratio:1034/302;
+    background:linear-gradient(118deg,var(--f1) 0%,var(--f2) 26%,var(--f3) 44%,var(--f2) 60%,var(--f1) 82%,var(--f5) 100%);
+    -webkit-mask:url(../../assets/couple.png) center/contain no-repeat;mask:url(../../assets/couple.png) center/contain no-repeat;}
+  [data-couple="art"] .sign-text{display:none;}
+  [data-couple="art"] .sign-art{display:block;}
+
+  .mono-art{display:none;width:min(290px,82%);margin:0 auto 18px;filter:drop-shadow(0 1px 0 rgba(255,255,255,.45)) drop-shadow(0 4px 7px rgba(80,58,24,.22));}
+  .mono-art i{display:block;aspect-ratio:673/461;
+    background:linear-gradient(118deg,var(--f1) 0%,var(--f2) 26%,var(--f3) 44%,var(--f2) 60%,var(--f1) 82%,var(--f5) 100%);
+    -webkit-mask:url(../../assets/names.png) center/contain no-repeat;mask:url(../../assets/names.png) center/contain no-repeat;}
+  [data-layout="mono"][data-mono="art"] .mono{display:none;}
+  [data-layout="mono"][data-mono="art"] .mono-art{display:block;}
+
   /* initials monogram */
   .mono{position:relative;width:min(250px,72vw);aspect-ratio:240/210;margin:0 auto 20px;}
   .mono-frame{position:absolute;inset:0;width:100%;height:100%;}
@@ -643,6 +657,7 @@
     <svg class="corner br"><use href="#corner"/></svg><svg class="corner bl"><use href="#corner"/></svg>
     <svg class="crest" viewBox="0 0 220 44"><use href="#crest"/></svg>
 
+    <div class="mono-art" role="img" aria-label="شادي و زينة"><i></i></div>
     <div class="mono" aria-label="ش و ز">
       <svg class="mono-frame" viewBox="0 0 240 210" aria-hidden="true"><use href="#medallion"/></svg>
       <div class="mono-inner">
@@ -708,7 +723,7 @@
       <b>حرصاً على راحتكم</b>
       <span>يُمنع التصوير، ونرجو التكرّم بعدم اصطحاب الأطفال</span>
     </div>
-    <p class="sign"><span class="foil-text">شادي و زينة</span>02 · 11 · 2026</p>
+    <p class="sign"><span class="foil-text sign-text">شادي و زينة</span><span class="sign-art" role="img" aria-label="شادي و زينة"><i></i></span><span dir="ltr">02 · 11 · 2026</span></p>
   </section>
 </main>
 
