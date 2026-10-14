@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ar" dir="rtl" data-theme="a" data-nf="nastaliq" data-layout="mono">
+<html lang="ar" dir="rtl" data-theme="a" data-nf="nastaliq" data-layout="mono" data-couple="art">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -314,6 +314,13 @@
   .env-letter .l-art{width:148px;margin:2px 0 0;filter:drop-shadow(0 1px 0 rgba(255,255,255,.4));}
   [data-names="art"] .cover .names,[data-names="art"] .env-letter .l-names{display:none;}
   [data-names="art"] .names-art,[data-names="art"] .env-letter .l-art{display:block;}
+
+  .couple-art{display:none;width:min(240px,68%);margin:6px auto 2px;filter:drop-shadow(0 1px 0 rgba(255,255,255,.45)) drop-shadow(0 3px 5px rgba(80,58,24,.2));}
+  .couple-art i{display:block;aspect-ratio:1034/302;
+    background:linear-gradient(118deg,var(--f1) 0%,var(--f2) 26%,var(--f3) 44%,var(--f2) 60%,var(--f1) 82%,var(--f5) 100%);
+    -webkit-mask:url(../../assets/couple.png) center/contain no-repeat;mask:url(../../assets/couple.png) center/contain no-repeat;}
+  [data-couple="art"] .couple{display:none;}
+  [data-couple="art"] .couple-art{display:block;}
 
   /* initials monogram */
   .mono{position:relative;width:min(250px,72vw);aspect-ratio:240/210;margin:0 auto 20px;}
@@ -659,6 +666,7 @@
     </div>
     <p class="invite-line">بدعوتكم لحضور حفل زفاف نجليهما</p>
     <p class="couple foil-text">شادي و زينة</p>
+    <div class="couple-art" role="img" aria-label="شادي و زينة"><i></i></div>
     <p class="dua">بارك الله لهما وبارك عليهما وجمع بينهما بالخير</p>
     <svg class="crest bottom" viewBox="0 0 220 44"><use href="#crest"/></svg>
   </section>
