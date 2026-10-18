@@ -379,6 +379,7 @@
 
   /* rsvp */
   .rsvp-name{font-family:var(--naskh);font-weight:700;font-size:1.3rem;line-height:1.6;margin:0 0 4px;text-wrap:balance;}
+  .rsvp-count{display:inline-block;margin:2px 0 12px;padding:3px 14px;border:1px solid var(--line-soft);border-radius:999px;color:var(--ink-2);font-size:.92rem;}
   .rsvp-ask{margin:0 0 20px;color:var(--ink-2);font-size:.98rem;}
   .choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
   .choice{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;padding:14px 8px 12px;border-radius:10px;cursor:pointer;border:1px solid var(--line);background:var(--field);transition:border-color .2s,background .2s,box-shadow .2s;text-align:center;}
@@ -745,6 +746,7 @@
 
   /* ------------------------------------------------------------ config */
   var API = "";
+  var API_Z = "https://script.google.com/macros/s/AKfycbxQEkpi2Wdoh755ceSqDz0OE5pk5uTgyC4Z6-u2hShn13IrTOQtsiTxtJQ48v9Vt-RWBA/exec";   // Zeina's guests reply to her own sheet
   var MAP_URL = "https://maps.app.goo.gl/zpCDjQEhgUDgESKm9";
   var EVENT = {
     title: "حفل زفاف شادي وزينة",
@@ -801,17 +803,32 @@
 
   // Apps Script now and then answers with an HTML error page instead of JSON;
   // a repeat of the same request succeeds, so every call retries a few times.
-  function getOnce(code){
-    return fetch(API + "?code=" + encodeURIComponent(code) + "&_=" + Date.now(), { redirect:"follow", cache:"no-store" })
+  function getOnce(url, code){
+    return fetch(url + "?code=" + encodeURIComponent(code) + "&_=" + Date.now(), { redirect:"follow", cache:"no-store" })
       .then(function(r){ return r.json(); });
   }
-  function apiGet(code, tries){
-    if (MOCK) return delay(500).then(function(){ return mockGet(code); });
+  function getFrom(url, code, tries){
     tries = tries || 4;
-    return getOnce(code).catch(function(e){
+    return getOnce(url, code).catch(function(e){
       if (tries <= 1) throw e;
-      return delay(600).then(function(){ return apiGet(code, tries - 1); });
+      return delay(600).then(function(){ return getFrom(url, code, tries - 1); });
     });
+  }
+  // Which sheet holds this invite: the encrypted entry says so for Zeina's guests; without it
+  // (no WebCrypto, or a code added to a sheet after the page was built) ask Shady's, then Zeina's.
+  var backendP = null;
+  function backend(code){
+    if (!backendP) backendP = localGuest(code).then(function(g){
+      if (!API_Z) return API;
+      if (g) return g.z ? API_Z : API;
+      return getFrom(API, code).then(function(r){ return r && r.error === "not_found" ? API_Z : API; },
+                                     function(){ return API; });
+    });
+    return backendP;
+  }
+  function apiGet(code){
+    if (MOCK) return delay(500).then(function(){ return mockGet(code); });
+    return backend(code).then(function(url){ return getFrom(url, code); });
   }
   function landed(s, body){
     return s && s.ok && s.status === body.status && (body.status !== "yes" || s.count === body.count);
@@ -819,10 +836,12 @@
   function apiPost(body, tries){
     if (MOCK) return delay(700).then(function(){ return mockPost(body); });
     tries = tries || 3;
-    return fetch(API, {
-      method:"POST", redirect:"follow",
-      headers:{ "Content-Type":"text/plain;charset=utf-8" },
-      body: JSON.stringify(body)
+    return backend(body.code).then(function(url){
+      return fetch(url, {
+        method:"POST", redirect:"follow",
+        headers:{ "Content-Type":"text/plain;charset=utf-8" },
+        body: JSON.stringify(body)
+      });
     }).then(function(r){ return r.json(); }).catch(function(e){
       // the write may have gone through even though the reply was lost
       return apiGet(body.code).then(function(s){
@@ -927,6 +946,7 @@
 
     body.innerHTML =
       '<p class="rsvp-name">' + esc(state.name) + '</p>' +
+      '<p class="rsvp-count">عدد المدعوين: ' + state.invited + '</p>' +
       '<p class="rsvp-ask">' + (isEdit ? (max > 1 ? "يمكنكم تقليل عدد الحضور أو الاعتذار" : "يمكنكم الاعتذار في حال تعذّر حضوركم") : "نرجو التكرّم بتأكيد الحضور") + '</p>' +
       '<form id="rsvp-form" novalidate>' +
         '<div class="choices" role="radiogroup" aria-label="الرد على الدعوة">' +
