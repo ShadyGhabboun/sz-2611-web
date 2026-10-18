@@ -700,7 +700,7 @@
     <div class="where">
       <span class="venue">قاعات فندق أوبال</span>
       <span class="street">شارع المطار</span>
-      <span class="chip"><svg><use href="#i-people"/></svg>الحفل منفصل للرجال والنساء</span>
+      <span class="chip" id="halls"><svg><use href="#i-people"/></svg>الحفل منفصل للرجال والنساء</span>
     </div>
     <p class="gate-hint" id="gate-hint">بعد تأكيد الحضور يظهر لكم رابط الموقع على الخريطة وإضافة الموعد إلى التقويم</p>
   </section>
@@ -869,7 +869,11 @@
   var GUESTS = /*GUESTS*/{}/*GUESTS*/;
   function b64d(s){ var b = atob(s), u = new Uint8Array(b.length); for (var i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return u; }
   function hex(u){ return Array.prototype.map.call(u, function(x){ return ("0" + x.toString(16)).slice(-2); }).join(""); }
+  var localP = {};
   function localGuest(code){
+    return localP[code] || (localP[code] = decryptGuest(code));
+  }
+  function decryptGuest(code){
     if (!GUESTS.e || !window.crypto || !crypto.subtle) return Promise.resolve(null);
     var enc = new TextEncoder();
     return crypto.subtle.importKey("raw", enc.encode(code), "PBKDF2", false, ["deriveBits"]).then(function(base){
@@ -885,8 +889,15 @@
   }
 
   var touched = false;   // guest has started filling the form
+  // some of Zeina's guests are in one mixed hall: no separate men/women note for them
+  var MIXED = false;
   function load(){
     if (!CODE){ setName(); renderRSVP(); return; }
+    localGuest(CODE).then(function(g){
+      if (!g || !g.h) return;
+      MIXED = true;
+      var el = $("halls"); if (el) el.remove();
+    });
     var cached = store("inv:" + CODE);
     if (cached && cached.name){ state = cached; setName(); renderRSVP(); }
     else {
@@ -1038,7 +1049,7 @@
 
   /* ------------------------------------------------------------ calendar */
   function addToCalendar(){
-    var details = "الموقع: " + MAP_URL + "\nالحفل منفصل للرجال والنساء";
+    var details = "الموقع: " + MAP_URL + (MIXED ? "" : "\nالحفل منفصل للرجال والنساء");
     var ua = navigator.userAgent || "";
     var apple = /iPhone|iPad|iPod|Macintosh/.test(ua) && !/Android/.test(ua);
     if (!apple){
